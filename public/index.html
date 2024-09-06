@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS com Inspeção WMS</title>
+
+    <!-- Link para o Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <!-- Leaflet.draw CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+    <!-- Link para o seu arquivo de estilos personalizado -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- Importação do Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <!-- Leaflet.draw JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <!-- Importação do JavaScript principal -->
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <!-- Barra superior com logo -->
+    <div class="top-bar">
+        <img src="asset/logo.png" alt="Logo AmbGEO" class="logo">
+    </div>
+    
+    <!-- Container para o mapa -->
+    <div id="map"></div>
+
+    <!-- Janela de informações -->
+    <div id="info" style="display: none;">
+        <button class="close-btn">Fechar</button>
+        <div id="info-content"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>WebGis - Foco de Queimadas</h2>
+        <p>Este mapa apresenta a localização dos focos de queimadas e incêndios florestais identificados pelo satélite NOAA-21. Os focos acumulados são mostrados a partir de 01/01/2024 até a data de visualização atual. Os dados são utilizados pelas instituições governamentais que compõem a Operação São Paulo Sem Fogo (<a href="https://semil.sp.gov.br/sma/sp-sem-fogo/" target="_blank">São Paulo Sem Fogo</a>) para a elaboração, avaliação, planejamento e desenvolvimento das ações de prevenção, fiscalização e combate aos incêndios florestais. A atualização é feita diariamente às 12:30.</p>
+
+        <p><strong>Insira sua área de interesse</strong> - Faça o upload da sua área de interesse (deve estar no Estado de São Paulo).</p>
+        <p><strong>Contador de Focos de Queimadas</strong> - Utilize as ferramentas de desenho e descubra quantos focos existem na sua região.</p>
+
+       <!-- Botão de upload -->
+        <label for="geojson-upload" class="upload-btn">Upload GeoJSON/KML</label>
+        <input type="file" id="geojson-upload" accept=".geojson,.json,.kml,.kmz"/>
+
+        <div class="focus-counter">
+            <img src="asset/fogo.jpeg" alt="Ícone de Queimada" class="fire-icon">
+            <span id="focus-count" class="red-count">0</span>&nbsp; Focos de Queimadas
+        </div>
+
+
+        <p>Este WebGis foi elaborado por <strong>Christhian Cunha</strong> - AmbGEO Cursos e Treinamento LTDA. Os dados são diretamente das fontes citadas abaixo.<a href="https://ambgeo.com/" target="_blank">Acesse o site</a>.</p>
+
+        <p><strong>Fonte dos dados:</strong></p>
+        <ul>
+            <li><a href="https://datageo.ambiente.sp.gov.br/app/#" target="_blank">DataGeo Ambiente SP</a></li>
+            <li><a href="https://datageo.ambiente.sp.gov.br/geoportal/catalog/search/resource/details.page?uuid=%7B13EF2A15-1600-4513-BB81-858B1DF21A6A%7D" target="_blank">Focos de Queimadas - Geoportal</a></li>
+        </ul>
+    </div>
+
+</body>
+</html>

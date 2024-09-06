@@ -1,0 +1,144 @@
+/* Estilos principais */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+}
+
+/* Barra superior */
+.top-bar {
+    width: 100%;
+    height: 60px;
+    background-color: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    height: 40px;
+    max-height: 40px;
+    width: auto;
+    max-width: 100px;
+}
+
+/* Estilo do mapa */
+#map {
+    position: absolute;
+    top: 60px; /* O mapa começa abaixo da barra superior */
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(100% - 5px); 
+    z-index: 0; /* Colocado atrás da sidebar */
+}
+
+/* Janela de informações */
+#info {
+    position: fixed; /* Para garantir que ele fique fixo e centralizado */
+    top: 50%; /* Centraliza verticalmente */
+    left: 50%; /* Centraliza horizontalmente */
+    transform: translate(-50%, -50%); /* Move o pop-up para o centro exato */
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 400px; /* Definir uma largura fixa */
+    display: none;  /* Começa invisível */
+    text-align: center; /* Centraliza o texto */
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#info-content {
+    margin-top: 20px;
+}
+
+/* Estilo da Sidebar */
+.sidebar {
+    width: 300px;
+    position: absolute;
+    top: 60px; /* A sidebar começa abaixo da barra superior */
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.9); /* Fundo semi-transparente */
+    padding: 20px;
+    z-index: 1001;
+    height: calc(100% - 70px); /* Ocupa o restante da altura da tela */
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin-top: 0;
+}
+
+.sidebar p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.sidebar a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+/* Estilizando o botão de upload */
+.upload-btn {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.upload-btn:hover {
+    background-color: #45a049;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+/* Estilizando o contador de focos de queimadas */
+.focus-counter {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;  /* Reduz o tamanho da fonte */
+    font-weight: normal;  /* Mantém a fonte normal, sem ser muito grossa */
+}
+
+.fire-icon {
+    width: 20px;  /* Ajusta o tamanho do ícone de queimada */
+    height: 20px;
+    margin-right: 8px;  /* Ajuste do espaçamento entre o ícone e o texto */
+}
+
+/* Cor e estilo para o número de focos */
+.red-count {
+    color: red;  /* Cor vermelha para o número de focos */
+    font-weight: bold;  /* Deixa o número mais destacado */
+    font-size: 18px;  /* Ajusta o tamanho do número para ficar destacado */
+}
