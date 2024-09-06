@@ -1,5 +1,12 @@
 {
+  "name": "webgis_fire",
+  "version": "1.0.0",
+  "description": "WebGIS com monitoramento de focos de queimadas.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2" 
   }
 }
