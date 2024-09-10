@@ -1,12 +1,15 @@
 // Inicializa o mapa
 var map = L.map('map').setView([-23.5505, -46.6333], 10);
 
+// Variável para armazenar a camada GeoJSON (declarada globalmente)
+var geojsonLayer;
+
 // Definir as camadas base
 var baseMaps = {
     "OpenStreetMaps": L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 20,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }),  // Adiciona a camada padrão
+    }),  
     "Google-Satellite": L.tileLayer(
         "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
         {
@@ -15,7 +18,7 @@ var baseMaps = {
             id: "google.satellite"
         }
     ),
-   "ESRI": L.tileLayer(
+    "ESRI": L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
             maxZoom: 20,
@@ -24,7 +27,7 @@ var baseMaps = {
     ).addTo(map),
 };
 
-// Camada WMS (exemplo)
+// Camada WMS de focos de incêndio (exemplo)
 var wmsLayer = L.tileLayer.wms('https://datageo.ambiente.sp.gov.br/geoserver/datageo/ows', {  
     layers: 'VWM_FOCOS_QUEIMADAS_INPE_NOAA_21_2024_PTO',  
     format: 'image/png',
@@ -32,32 +35,29 @@ var wmsLayer = L.tileLayer.wms('https://datageo.ambiente.sp.gov.br/geoserver/dat
     attribution: "Dados do GeoServer"
 }).addTo(map);
 
-// Adiciona a camada WMS do Limite Estadual
+// Outras camadas WMS (Limites, Municípios, etc.)
 var sp_limite_layer = L.tileLayer.wms('http://datageo.ambiente.sp.gov.br/geoserver/datageo/ows?', {
-    layers: 'LimiteEstadual',  // Nome da camada
+    layers: 'LimiteEstadual',  
     format: 'image/png',
     transparent: true,
     attribution: "Dados do GeoServer"
 }).addTo(map);
 
-// Adiciona a camada WMS do Limite Estadual
 var sp_muni_layer = L.tileLayer.wms('http://datageo.ambiente.sp.gov.br/geoserver/datageo/ows?', {
-    layers: 'VWM_MUNICIPIO_LIMITE_50_10_IGC_2021_POL',  // Nome da camada
+    layers: 'VWM_MUNICIPIO_LIMITE_50_10_IGC_2021_POL',  
     format: 'image/png',
     transparent: true,
     attribution: "Dados do GeoServer"
 }).addTo(map);
 
-// Adiciona a camada WMS do Limite Estadual
 var sp_sedes_layer = L.tileLayer.wms('http://datageo.ambiente.sp.gov.br/geoserver/datageo/ows?', {
-    layers: 'SedesMunicipais',  // Nome da camada
+    layers: 'SedesMunicipais',  
     format: 'image/png',
     transparent: true,
     attribution: "Dados do GeoServer"
 });
 
-
-// Função que constrói a URL de solicitação GetFeatureInfo
+// Função para construir a URL de GetFeatureInfo
 function getFeatureInfoUrl(latlng, layer) {
     var point = map.latLngToContainerPoint(latlng, map.getZoom()),
         size = map.getSize(),
@@ -71,26 +71,17 @@ function getFeatureInfoUrl(latlng, layer) {
         '&info_format=text/html' +  
         '&x=' + point.x + '&y=' + point.y;
 
-    console.log(url);
     return url;
 }
 
-// Evento de clique no mapa
+// Evento de clique no mapa para obter informações de uma feição
 map.on('click', function (e) {
     if (activeWmsLayer) {
         var url = getFeatureInfoUrl(e.latlng, activeWmsLayer);  
         fetch(url)
             .then(response => response.text())  
             .then(data => {
-                console.log(data);  
-                var info = '';
-
-                if (data) {
-                    info = data;  
-                } else {
-                    info = 'Nenhuma feição encontrada';
-                }
-
+                var info = data || 'Nenhuma feição encontrada';
                 document.getElementById('info-content').innerHTML = info;
                 document.getElementById('info').style.display = 'block';
             })
@@ -103,10 +94,10 @@ document.querySelector('#info .close-btn').addEventListener('click', function ()
     document.getElementById('info').style.display = 'none';
 });
 
-// Função para alterar a camada WMS ativa ao selecionar uma nova camada
+// Função para alterar a camada WMS ativa
 map.on('overlayadd', function(e) {
     if (e.layer instanceof L.TileLayer.WMS) {
-        activeWmsLayer = e.layer;  // Atualiza a camada ativa
+        activeWmsLayer = e.layer; 
     }
 });
 
@@ -121,18 +112,29 @@ var overlayMaps = {
 // Adicionar controle de camadas ao mapa
 var controlLayers = L.control.layers(baseMaps, overlayMaps, { position: 'topleft' }).addTo(map);
 
+// Função para contar focos de incêndio em uma área
+function countFireFocuses(bbox) {
+    var wfsUrl = wmsLayer._url.replace('wms', 'wfs') + 
+                 '?service=WFS&version=1.0.0&request=GetFeature' + 
+                 '&typename=VWM_FOCOS_QUEIMADAS_INPE_NOAA_21_2024_PTO' + 
+                 '&bbox=' + bbox + 
+                 '&outputFormat=application/json';
 
-// Variável para armazenar a camada GeoJSON
-var geojsonLayer;
+    fetch(wfsUrl)
+        .then(response => response.json())
+        .then(data => {
+            var focosCount = data.features.length;
+            document.getElementById('focus-count').textContent = focosCount;
+        })
+        .catch(err => console.log('Erro ao obter informações: ', err));
+}
 
-// Função para adicionar o GeoJSON ao mapa e ao controle de camadas
+// Adiciona uma camada GeoJSON ao mapa e conta focos de incêndio na área carregada
 function addGeoJSONToMap(geojsonData) {
-    // Remove a camada anterior, se houver
     if (geojsonLayer) {
         map.removeLayer(geojsonLayer);
     }
 
-    // Adiciona a nova camada GeoJSON
     geojsonLayer = L.geoJSON(geojsonData, {
         style: function (feature) {
             return {
@@ -143,27 +145,68 @@ function addGeoJSONToMap(geojsonData) {
         }
     }).addTo(map);
 
-    // Ajusta a visualização do mapa para o GeoJSON
     map.fitBounds(geojsonLayer.getBounds());
 
-    // Atualiza o controle de camadas com o novo GeoJSON
+    // Capturar o BBOX da área carregada e contar os focos de incêndio
+    var bounds = geojsonLayer.getBounds();
+    var bbox = bounds.toBBoxString();
+    countFireFocuses(bbox);
+
     overlayMaps["GeoJSON Carregado"] = geojsonLayer;
     controlLayers.addOverlay(geojsonLayer, "Área de Interesse");
 }
 
-// Manipular o upload do arquivo GeoJSON
-document.getElementById('geojson-upload').addEventListener('change', function (event) {
+// Função para processar arquivos e adicionar ao mapa
+document.getElementById('file-upload').addEventListener('change', function (event) {
     var file = event.target.files[0];
-    
+
     if (file) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var geojsonData = JSON.parse(e.target.result);
-            addGeoJSONToMap(geojsonData);
-        };
-        reader.readAsText(file);
+        if (file.name.endsWith('.geojson') || file.name.endsWith('.json')) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var geojsonData = JSON.parse(e.target.result);
+                addGeoJSONToMap(geojsonData);
+            };
+            reader.readAsText(file);
+        } else if (file.name.endsWith('.kml') || file.name.endsWith('.kmz')) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var kmlData = e.target.result;
+                var kmlLayer = L.geoJSON(toGeoJSON.kml(new DOMParser().parseFromString(kmlData, 'text/xml')));
+                map.addLayer(kmlLayer);
+                map.fitBounds(kmlLayer.getBounds());
+
+                // Capturar o BBOX da área KML carregada e contar os focos de incêndio
+                var bounds = kmlLayer.getBounds();
+                var bbox = bounds.toBBoxString();
+                countFireFocuses(bbox);
+            };
+            reader.readAsText(file);
+        } else if (file.name.endsWith('.zip')) {
+            processShapefile(file);
+        }
     }
 });
+
+// Função para processar Shapefiles carregados
+async function processShapefile(file) {
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const geojson = await shp(arrayBuffer);
+        const geojsonLayer = L.geoJSON(geojson).addTo(map);
+
+        map.fitBounds(geojsonLayer.getBounds());
+
+        // Capturar o BBOX da área Shapefile carregada e contar os focos de incêndio
+        var bounds = geojsonLayer.getBounds();
+        var bbox = bounds.toBBoxString();
+        countFireFocuses(bbox);
+
+        controlLayers.addOverlay(geojsonLayer, file.name);
+    } catch (error) {
+        console.error('Erro ao processar o shapefile:', error);
+    }
+}
 
 // Inicializa a variável que vai armazenar a camada WMS ativa
 var activeWmsLayer = wmsLayer;
@@ -192,25 +235,8 @@ map.on(L.Draw.Event.CREATED, function (event) {
     var layer = event.layer;
     drawnItems.addLayer(layer);
 
-    // Capturar o bounds (limites) da área desenhada
+    // Capturar o bounds da área desenhada e fazer a contagem de focos
     var bounds = layer.getBounds();
-    var bbox = bounds.toBBoxString(); // Converte o bounds para BBOX formato
-
-    // Construir a URL de GetFeatureInfo ou WFS
-    var wfsUrl = wmsLayer._url.replace('wms', 'wfs') + 
-                 '?service=WFS&version=1.0.0&request=GetFeature' + 
-                 '&typename=VWM_FOCOS_QUEIMADAS_INPE_NOAA_21_2024_PTO' + 
-                 '&bbox=' + bbox + 
-                 '&outputFormat=application/json';
-
-    // Fazer a requisição para contar os focos
-    fetch(wfsUrl)
-        .then(response => response.json())
-        .then(data => {
-            var focosCount = data.features.length;
-
-            // Atualizar o número de focos na sidebar
-            document.getElementById('focus-count').textContent = focosCount;
-        })
-        .catch(err => console.log('Erro ao obter informações: ', err));
+    var bbox = bounds.toBBoxString(); 
+    countFireFocuses(bbox);
 });

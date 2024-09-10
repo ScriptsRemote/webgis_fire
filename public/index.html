@@ -21,6 +21,9 @@
     crossorigin=""></script>
     <!-- Leaflet.draw JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <!-- Shapefile -->
+    <script src="https://unpkg.com/shpjs@latest/dist/shp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.js"></script>
     <!-- Importação do JavaScript principal -->
     <script src="main.js" defer></script>
 </head>
@@ -44,12 +47,12 @@
         <h2>WebGis - Foco de Queimadas</h2>
         <p>Este mapa apresenta a localização dos focos de queimadas e incêndios florestais identificados pelo satélite NOAA-21. Os focos acumulados são mostrados a partir de 01/01/2024 até a data de visualização atual. Os dados são utilizados pelas instituições governamentais que compõem a Operação São Paulo Sem Fogo (<a href="https://semil.sp.gov.br/sma/sp-sem-fogo/" target="_blank">São Paulo Sem Fogo</a>) para a elaboração, avaliação, planejamento e desenvolvimento das ações de prevenção, fiscalização e combate aos incêndios florestais. A atualização é feita diariamente às 12:30.</p>
 
-        <p><strong>Insira sua área de interesse</strong> - Faça o upload da sua área de interesse (deve estar no Estado de São Paulo).</p>
+        <p><strong>Insira sua área de interesse</strong> - Faça o upload da sua área de interesse (deve estar no Estado de São Paulo).Arquivos kml,kmz,Geojson e.zip( contendo shapefile) podem ser carregados.</p>
         <p><strong>Contador de Focos de Queimadas</strong> - Utilize as ferramentas de desenho e descubra quantos focos existem na sua região.</p>
 
        <!-- Botão de upload -->
-        <label for="geojson-upload" class="upload-btn">Upload GeoJSON/KML</label>
-        <input type="file" id="geojson-upload" accept=".geojson,.json,.kml,.kmz"/>
+        <label for="file-upload" class="upload-btn">Upload seu arquivo</label>
+        <input type="file" id="file-upload" accept=".geojson,.json,.kml,.kmz, .zip"/>
 
         <div class="focus-counter">
             <img src="asset/fogo.jpeg" alt="Ícone de Queimada" class="fire-icon">
