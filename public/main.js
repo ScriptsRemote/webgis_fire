@@ -57,6 +57,26 @@ var sp_sedes_layer = L.tileLayer.wms('http://datageo.ambiente.sp.gov.br/geoserve
     attribution: "Dados do GeoServer"
 });
 
+
+// Inicializa o sidebar e o adiciona ao mapa
+var sidebar = L.control.sidebar({
+    autopan: true,
+    container: 'sidebar',
+    position: 'right'
+}).addTo(map);
+
+// Abre o sidebar automaticamente ao carregar o mapa
+sidebar.open('home');
+
+sidebar.on('content', function (event) {
+    if (event.id === 'home') {
+        var canvas = document.getElementById('meuGrafico');
+        if (canvas) {
+            canvas.style.display = 'block';
+        }
+    }
+});
+
 // Função para construir a URL de GetFeatureInfo
 function getFeatureInfoUrl(latlng, layer) {
     var point = map.latLngToContainerPoint(latlng, map.getZoom()),
@@ -89,10 +109,10 @@ map.on('click', function (e) {
     }
 });
 
-// Adiciona funcionalidade de fechar a janela de informações
-document.querySelector('#info .close-btn').addEventListener('click', function () {
-    document.getElementById('info').style.display = 'none';
-});
+// // Adiciona funcionalidade de fechar a janela de informações
+// document.querySelector('#info .close-btn').addEventListener('click', function () {
+//     document.getElementById('info').style.display = 'none';
+// });
 
 // Função para alterar a camada WMS ativa
 map.on('overlayadd', function(e) {
@@ -123,11 +143,26 @@ function countFireFocuses(bbox) {
     fetch(wfsUrl)
         .then(response => response.json())
         .then(data => {
-            var focosCount = data.features.length;
+            // Verificando os dados retornados
+            console.log(data.features);
+
+            var focos = data.features.map(feature => ({
+                data: feature.properties['Data'],  // Extraindo a Data
+                bioma: feature.properties['Bioma'] // Extraindo o Bioma
+            }));
+
+            console.log(focos); // Verifique os dados extraídos
+
+            var focosCount = focos.length;
             document.getElementById('focus-count').textContent = focosCount;
+
+            // Geração do gráfico com os dados extraídos
+            gerarGraficoFocos(focos);
         })
         .catch(err => console.log('Erro ao obter informações: ', err));
 }
+
+
 
 // Adiciona uma camada GeoJSON ao mapa e conta focos de incêndio na área carregada
 function addGeoJSONToMap(geojsonData) {
@@ -240,3 +275,72 @@ map.on(L.Draw.Event.CREATED, function (event) {
     var bbox = bounds.toBBoxString(); 
     countFireFocuses(bbox);
 });
+
+// Variável global para armazenar a instância do gráfico
+var chartInstance = null;
+
+function gerarGraficoFocos(focos) {
+    var biomaContagem = {};
+
+    focos.forEach(foco => {
+        var bioma = foco.bioma;
+        if (biomaContagem[bioma]) {
+            biomaContagem[bioma]++;
+        } else {
+            biomaContagem[bioma] = 1;
+        }
+    });
+
+    var biomas = Object.keys(biomaContagem);
+    var contagens = Object.values(biomaContagem);
+
+    var ctx = document.getElementById('meuGrafico').getContext('2d');
+
+    // Destruir o gráfico anterior, se existir
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    // Criar um novo gráfico
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: biomas,
+            datasets: [{
+                label: 'Focos de Queimadas por Bioma',
+                data: contagens,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true
+                }
+            }
+        }
+    });
+}

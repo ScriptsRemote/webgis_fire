@@ -100,6 +100,14 @@ body {
     text-decoration: underline;
 }
 
+.sidebar-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px; /* Espaço entre o ícone e o texto */
+    vertical-align: middle; /* Alinha o ícone verticalmente ao texto */
+}
+
+
 /* Estilizando o botão de upload */
 .upload-btn {
     display: inline-block;
@@ -142,3 +150,4 @@ input[type="file"] {
     font-weight: bold;  /* Deixa o número mais destacado */
     font-size: 18px;  /* Ajusta o tamanho do número para ficar destacado */
 }
+
