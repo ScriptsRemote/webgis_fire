@@ -110,9 +110,11 @@ map.on('click', function (e) {
 });
 
 // // Adiciona funcionalidade de fechar a janela de informações
-// document.querySelector('#info .close-btn').addEventListener('click', function () {
-//     document.getElementById('info').style.display = 'none';
-// });
+// Função para fechar a janela de inspeção
+document.querySelector('.close-btn').addEventListener('click', function () {
+    document.getElementById('info').style.display = 'none';
+});
+
 
 // Função para alterar a camada WMS ativa
 map.on('overlayadd', function(e) {
